@@ -22,3 +22,11 @@ docs/site/
 # committed for packages, but should be committed for applications that require a static
 # environment.
 Manifest.toml
+output/CC_OPF/nodal_solution.csv
+output/CC_OPF/summary.txt
+output/CVaR_CC_OPF/nodal_solution.csv
+output/CVaR_CC_OPF/summary.txt
+output/D_OPF/nodal_solution.csv
+output/D_OPF/summary.txt
+output/TaV_CC_OPF/nodal_solution.csv
+output/TaV_CC_OPF/summary.txt

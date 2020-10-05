@@ -13,6 +13,9 @@ using Distributions
 using LinearAlgebra
 using ArgParse
 
+optimizer = optimizer_with_attributes(
+    ECOS.Optimizer, "maxit" => 300
+    )
 # parse arguments
 function parse_commandline()
     s = ArgParseSettings()
@@ -25,8 +28,13 @@ function parse_commandline()
     return parse_args(s)
 end
 args = parse_commandline()
-mechanism = args["mechanism"]
-outdir = "output/" * args["mechanism"]
+mechanism = "D_OPF"
+# mechanism = "CC_OPF"
+# mechanism = "ToV_CC_OPF"
+# mechanism = "TaV_CC_OPF"
+# mechanism = "CVaR_CC_OPF"
+# mechanism = args["mechanism"]
+outdir = "output/" * mechanism
 mkpath(outdir)
 
 # load scripts
@@ -66,7 +74,8 @@ end
 ϱ = 0.1; θ = 1;
 
 # run mechanism
-(nodal_solution,exp_cost,CVaR,CPU_time)=run_mechanism(mechanism,node,line,σ,Σ,T,U_n,D_n,U_l,D_l,η_g,η_u,η_f,ψ,σ̂,θ,ϱ)
+(nodal_solution,exp_cost,CVaR,CPU_time)=run_mechanism(mechanism,node,line,σ,Σ,T,U_n,D_n,U_l,D_l,η_g,η_u,η_f,ψ,σ̂,θ,ϱ, optimizer=optimizer)
+
 
 # save results
 CSV.write("$(outdir)/nodal_solution.csv",nodal_solution)
