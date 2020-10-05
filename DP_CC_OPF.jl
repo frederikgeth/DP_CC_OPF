@@ -14,6 +14,13 @@ using Distributions
 using LinearAlgebra
 using ArgParse
 
+# DATA MODEL set up
+# - exactly one generator per bus
+# - all generator buses are PV buses
+# - generators are fixed power factor (tan phi)
+# - one load per bus
+# - network is radial
+
 optimizer = optimizer_with_attributes(
     ECOS.Optimizer, "maxit" => 300
     )
