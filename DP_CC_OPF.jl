@@ -6,8 +6,9 @@ using CSV
 using DataStructures: SortedDict
 using JuMP
 using DataFrames
-using Mosek
-using MosekTools
+# using Mosek
+# using MosekTools
+using ECOS
 using Distributions
 using LinearAlgebra
 using ArgParse

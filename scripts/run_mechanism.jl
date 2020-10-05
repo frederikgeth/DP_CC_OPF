@@ -1,4 +1,4 @@
-function run_mechanism(mechanism,node,line,σ,Σ,T,U_n,D_n,U_l,D_l,η_g,η_u,η_f,ψ,σ̂,θ,ϱ)
+function run_mechanism(mechanism,node,line,σ,Σ,T,U_n,D_n,U_l,D_l,η_g,η_u,η_f,ψ,σ̂,θ,ϱ; optimizer=ECOS.Optimizer)
     mechanism == "D_OPF" ? Σ = Σ .* 0 .+ 1e-10 : NaN
     mechanism == "D_OPF" ? σ = σ .* 0 .+ 1e-10 : NaN
     # functions to return inverse CDF and PDF of the SND at x'th quantile
@@ -23,7 +23,7 @@ function run_mechanism(mechanism,node,line,σ,Σ,T,U_n,D_n,U_l,D_l,η_g,η_u,η_
         end
     end
     # build optimization model
-    m = Model(Mosek.Optimizer)
+    m = Model(optimizer)
     set_optimizer_attributes(m, "LOG" => 0)
     # variables
     @variable(m, g_p[PV_bus])
