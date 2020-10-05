@@ -18,7 +18,7 @@ using ArgParse
 # - exactly one generator per bus
 # - all generator buses are PV buses
 # - generators are fixed power factor (tan phi)
-# - one load per bus
+# - exactly one load per bus
 # - network is radial
 
 optimizer = optimizer_with_attributes(
