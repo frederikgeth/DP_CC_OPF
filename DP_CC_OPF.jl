@@ -9,6 +9,7 @@ using DataFrames
 # using Mosek
 # using MosekTools
 using ECOS
+using Ipopt
 using Distributions
 using LinearAlgebra
 using ArgParse
@@ -40,6 +41,7 @@ mkpath(outdir)
 # load scripts
 include("scripts/data_manager.jl")
 include("scripts/run_mechanism.jl")
+include("scripts/run_mechanism_nlp.jl")
 
 # load data
 caseID = "feeder15"
@@ -73,8 +75,12 @@ end
 # CVaR parameters
 ϱ = 0.1; θ = 1;
 
-# run mechanism
+# run mechanism conic
 (nodal_solution,exp_cost,CVaR,CPU_time)=run_mechanism(mechanism,node,line,σ,Σ,T,U_n,D_n,U_l,D_l,η_g,η_u,η_f,ψ,σ̂,θ,ϱ, optimizer=optimizer)
+
+
+# run mechanism nonlinear 
+(nodal_solution_nlp,exp_cost_nlp,CVaR_nlp,CPU_time_nlp)=run_mechanism_nlp(mechanism,node,line,σ,Σ,T,U_n,D_n,U_l,D_l,η_g,η_u,η_f,ψ,σ̂,θ,ϱ)
 
 
 # save results
