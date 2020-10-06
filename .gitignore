@@ -30,3 +30,4 @@ output/D_OPF/nodal_solution.csv
 output/D_OPF/summary.txt
 output/TaV_CC_OPF/nodal_solution.csv
 output/TaV_CC_OPF/summary.txt
+out.txt

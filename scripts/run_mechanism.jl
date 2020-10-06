@@ -33,7 +33,7 @@ function run_mechanism(mechanism,node,line,σ,Σ,T,U_n,D_n,U_l,D_l,η_g,η_u,η_
     m = Model(optimizer)
     set_optimizer_attributes(m, "LOG" => 0)
     # variables
-    @variable(m, g_p[PV_bus])
+    @variable(m, g_p[PV_bus]) #this should be defined for each gen object, not bus object
     @variable(m, g_q[PV_bus])
     @variable(m, α[N,L])
     @variable(m, f_p[L])
@@ -71,16 +71,19 @@ function run_mechanism(mechanism,node,line,σ,Σ,T,U_n,D_n,U_l,D_l,η_g,η_u,η_
     @constraint(m, volt_lim[i=N], node[i].v̲ <= u[i] <= node[i].v̅)
     
     # Polygon branch flow constraint
-    @constraint(m, flow_f̅[i=L,c=C], α_f[c]*f_p[i] + β_f[c]*f_q[i] + δ_f[c]*line[i].f̅ <= 0)
+    @constraint(m, flow_f̅[i=L,c=C], α_f[c]*f_p[i] + β_f[c]*f_q[i] + δ_f[c]*line[i].f̅ <= 0) 
+    
+    
     # alpha at PQ bus (no generator) is 0
     @constraint(m, α_PQ[i=PQ_bus,j=L], α[i,j] == 0)
     # alpha ???
     @constraint(m, α_zero[i=PV_bus,j=L;T[i+1,j]==0], α[i,j] == 0)
-    # CVaR declaration
-    @constraint(m, CVaR == sum(node[i].c*g_p[i] for i in N) + σ_c*ϕ(Φ(1-ϱ))/(ϱ))
     # affine policy constraints
     @constraint(m, up_stream_bal[i=L], sum(α[j,i] for j in PV_bus if U_l[j+1,i] == 1) == 1)
     @constraint(m, dw_stream_bal[i=L], sum(α[j,i] for j in PV_bus if D_l[j+1,i] == 1) == 1)
+
+    # CVaR declaration
+    @constraint(m, CVaR == sum(node[i].c*g_p[i] for i in N) + σ_c*ϕ(Φ(1-ϱ))/(ϱ))
     # generator chance constraints
     for i in PV_bus
         arg_p=[]
@@ -105,10 +108,25 @@ function run_mechanism(mechanism,node,line,σ,Σ,T,U_n,D_n,U_l,D_l,η_g,η_u,η_
     # voltage chance constraints
     for i in L
         arg = []
-        norm = 2*sum(line[j].r*(T[j+1,:].*Array(α[j,:]) + sum(D_n[j+1,k]*(T[k+1,:].*Array(α[k,:])) for k in L)) + line[j].x*(T[j+1,:].*Array(α[j,:])*node[j].tan_ϕ + sum(D_n[j+1,k]*(T[k+1,:].*Array(α[k,:])*node[k].tan_ϕ) for k in L)) for j in L if R[i,j] == 1)
+        @show α[:,:]
+        # @show Array(α[:,:])
+        @show Array(α[2,:])
+        norm = 2*sum(line[j].r*
+                        (T[j+1,:].*Array(α[j,:]) 
+                +        sum(D_n[j+1,k]*(T[k+1,:].*Array(α[k,:])) 
+                    for k in L)) 
+                + line[j].x*
+                        (T[j+1,:].*Array(α[j,:])*node[j].tan_ϕ 
+                        + sum(D_n[j+1,k]*(T[k+1,:].*Array(α[k,:])*node[k].tan_ϕ) 
+                    for k in L)) 
+                for j in L if R[i,j] == 1)
+        
         for j in L
             @show Φ(1-η_u)
             @show norm[j]
+            # @show typeof(norm[j])
+            # @show typeof(norm)
+            # @show length(norm)
             @show σ[j]
             arg=push!(arg,@expression(m, Φ(1-η_u)*norm[j]*σ[j]))
         end
@@ -182,5 +200,5 @@ function run_mechanism(mechanism,node,line,σ,Σ,T,U_n,D_n,U_l,D_l,η_g,η_u,η_
             push!(output,[i,node[i].d_p,JuMP.value(g_p[i]),gen_p_std,JuMP.value(g_q[i]),gen_q_std,JuMP.value(f_p[i]),flow_p_std,JuMP.value(f_q[i]),flow_q_std,JuMP.value(u[i]),u_std,sqrt(JuMP.value(u[i]))])
         end
     end
-    return output, sum(JuMP.value(g_p[i])*node[i].c for i in PV_bus), JuMP.value(CVaR), CPU_time
+    return output, sum(JuMP.value(g_p[i])*node[i].c for i in PV_bus), JuMP.value(CVaR), CPU_time, m
 end

@@ -107,8 +107,10 @@ function load_data(caseID)
     node = Dict()
     for i in 0:size(node_data,1)-1
         ind = node_data[i+1,:index]
+        #load data P and Q
         d_p = node_data[i+1,:d_P]
         d_q = node_data[i+1,:d_Q]
+        # voltage bounds in the lifted (W) variable space (already squared)
         v̅ = node_data[i+1,:v_max]
         v̲ = node_data[i+1,:v_min]
         C = Int[]
@@ -120,6 +122,7 @@ function load_data(caseID)
             line[l].node_f == i ? push!(C,line[l].node_t) : NaN
             line[l].node_t == i ? push!(A,line[l].node_f) : NaN
         end
+        #why? TODO
         type = 2
         c = 0
         p̅ = 0
@@ -129,7 +132,7 @@ function load_data(caseID)
             if gen[g].node == i
                 type = 1
                 c =  gen[g].c
-                p̅ = gen[g].p̅
+                p̅ = gen[g].p̅ # this should be the sum of the generator powers if you want to do it like this
                 q̅ = gen[g].q̅
                 tan_ϕ = gen[g].tan_ϕ
             end

@@ -36,8 +36,8 @@ function parse_commandline()
     return parse_args(s)
 end
 args = parse_commandline()
-mechanism = "D_OPF"
-# mechanism = "CC_OPF"
+# mechanism = "D_OPF"
+mechanism = "CC_OPF"
 # mechanism = "ToV_CC_OPF"
 # mechanism = "TaV_CC_OPF"
 # mechanism = "CVaR_CC_OPF"
@@ -83,11 +83,14 @@ end
 ϱ = 0.1; θ = 1;
 
 # run mechanism conic
-(nodal_solution,exp_cost,CVaR,CPU_time)=run_mechanism(mechanism,node,line,σ,Σ,T,U_n,D_n,U_l,D_l,η_g,η_u,η_f,ψ,σ̂,θ,ϱ, optimizer=optimizer)
+(nodal_solution,exp_cost,CVaR,CPU_time, model)=run_mechanism(mechanism,node,line,σ,Σ,T,U_n,D_n,U_l,D_l,η_g,η_u,η_f,ψ,σ̂,θ,ϱ, optimizer=optimizer)
 
+open("out.txt", "w") do file                      
+    write(file, string(model));
+end
 
 # run mechanism nonlinear 
-(nodal_solution_nlp,exp_cost_nlp,CVaR_nlp,CPU_time_nlp)=run_mechanism_nlp(mechanism,node,line,σ,Σ,T,U_n,D_n,U_l,D_l,η_g,η_u,η_f,ψ,σ̂,θ,ϱ)
+(nodal_solution_nlp,exp_cost_nlp,CVaR_nlp,CPU_time_nlp, model_nlp)=run_mechanism_nlp(mechanism,node,line,σ,Σ,T,U_n,D_n,U_l,D_l,η_g,η_u,η_f,ψ,σ̂,θ,ϱ)
 
 
 # save results
